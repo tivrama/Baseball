@@ -2,20 +2,16 @@
 * Scorecard Constructor
 */
 var ScoreCard = function() {
-  // this.bases = {
-  //   startHome: 'empty',
-  //   first: 'empty',
-  //   second: 'empty',
-  //   third: 'empty',
-  //   endHome: 'empty'
-  // };
-
+  // variables that store information for the game
+  this.visitorScore = 0;
+  this.homeScore = 0;
+  // odd inning # is away team, even is home team
+  this.innings = 1;
+  
+  // variables that will reset with each new inning
   this.positions = ['empty','empty','empty','empty'];
-
-  this.score = 0;
+  // this.score = 0;
   this.outs = 0;
-
-
 }
 
 /*
@@ -24,41 +20,48 @@ var ScoreCard = function() {
 * Acceptable values: ('single', 'double', 'triple', 'homerun' or 'out') 
 */
 ScoreCard.prototype.addEntry = function(entry) {
+  // create a copy of the positions at the beginning of the turn
   var startingPositions = this.positions.slice();
+
+  var atBatScore = 0;
+  
 
   //Single
   if (entry === 'single') {
-      if (startingPositions[1] === 'full') {
-        this.positions[2] = 'full';
-      }
-      if (startingPositions[2] === 'full') {
-        this.positions[3] = 'full';
-        if (startingPositions[1] === 'empty') {
-          this.positions[2] = 'empty';
-        }
-      }
-      if (startingPositions[3] === 'full') {
-        this.score++;
-        if (startingPositions[2] === 'empty') {
-          this.positions[3] = 'empty';
-        }
+    if (startingPositions[1] === 'full') {
+      this.positions[2] = 'full';
+    }
+    if (startingPositions[2] === 'full') {
+      this.positions[3] = 'full';
+      if (startingPositions[1] === 'empty') {
+        this.positions[2] = 'empty';
       }
     }
+    if (startingPositions[3] === 'full') {
+      atBatScore++;
+      if (startingPositions[2] === 'empty') {
+        this.positions[3] = 'empty';
+      }
+    }
+  }
 
   //Double hit
-  } else if (entry === 'double') {
+  else if (entry === 'double') {
+    // first base
     if(startingPositions[1] === 'full') {
       this.positions[3] = 'full';
       this.positions[1] = 'empty';
     }
+    // second base
     if (startingPositions[2] === 'full') {
-      this.score++;
+      atBatScore++;
     }
-    else {
+    if (startingPositions[2] === 'empty') {
       this.positions[2] = 'full';
     }
+    // third base
     if (startingPositions[3] === 'full') {
-      this.score++;
+      atBatScore++;
       if(startingPositions[1] === 'empty') {
         this.positions[3] = 'empty';
       }
@@ -68,15 +71,15 @@ ScoreCard.prototype.addEntry = function(entry) {
   //Tripple hit
   else if (entry === 'triple') {
     if(startingPositions[1] === 'full') {
-      this.score++;
+      atBatScore++;
       this.positions[1] = 'empty';
     }
     if(startingPositions[2] === 'full') {
-      this.score++;
+      atBatScore++;
       this.positions[2] = 'empty';
     }
     if(startingPositions[3] === 'full') {
-      this.score++;
+      atBatScore++;
     }
     else {
       this.positions[3] = 'full';
@@ -86,41 +89,49 @@ ScoreCard.prototype.addEntry = function(entry) {
 
   //Homerun
   else if (entry === 'homerun') {
-    this.score++;
+    atBatScore++;
     if(startingPositions[1] === 'full') {
-      this.score++;
+      atBatScore++;
       this.positions[1] = 'empty';
     }
     if(startingPositions[2] === 'full') {
-      this.score++;
+      atBatScore++;
       this.positions[2] = 'empty';
     }
     if(startingPositions[3] === 'full') {
-      this.score++;
+      atBatScore++;
       this.positions[3] = 'empty';
     }
-
   } 
 
+  //Update score with each addEntry event
+  if (this.innings % 2 === 0) {
+    this.homeScore += atBatScore;
+  } else {
+    this.visitorScore += atBatScore;
+  }
+  // need to reset atBatScore with each run of addEntry
+  atBatScore = 0;
 
-  else if (entry === 'out') {
+  //Outs
+  if (entry === 'out') {
     if(this.outs < 2) {
-      this.outs++
+      this.outs++;
     }
     else {
       this.positions[1] = 'empty';
       this.positions[2] = 'empty';
       this.positions[3] = 'empty';
       this.outs = 0;
+      this.innings++;
     }
-  } 
-
-
-}
+  }
+};
 
 /*
 * A public method returning the current score
 * Format: "Home: [HOME_SCORE] Away: [AWAY_SCORE]"
 */
 ScoreCard.prototype.getScore = function() {
-}
+  return 'Home: ' + this.homeScore + ' Away: ' + this.visitorScore;
+};
