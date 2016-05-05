@@ -28,15 +28,21 @@ ScoreCard.prototype.addEntry = function(entry) {
 
   //Single
   if (entry === 'single') {
+    // first base
     if (startingPositions[1] === 'full') {
       this.positions[2] = 'full';
     }
+    if (startingPositions[1] === 'empty') {
+      this.positions[1] = 'full';
+    }
+    // second base
     if (startingPositions[2] === 'full') {
       this.positions[3] = 'full';
       if (startingPositions[1] === 'empty') {
         this.positions[2] = 'empty';
       }
     }
+    // third base
     if (startingPositions[3] === 'full') {
       atBatScore++;
       if (startingPositions[2] === 'empty') {
@@ -70,18 +76,21 @@ ScoreCard.prototype.addEntry = function(entry) {
 
   //Tripple hit
   else if (entry === 'triple') {
+    // first base
     if(startingPositions[1] === 'full') {
       atBatScore++;
       this.positions[1] = 'empty';
     }
+    // second base
     if(startingPositions[2] === 'full') {
       atBatScore++;
       this.positions[2] = 'empty';
     }
+    // third base
     if(startingPositions[3] === 'full') {
       atBatScore++;
     }
-    else {
+    if (startingPositions[3] === 'empty') {
       this.positions[3] = 'full';
     }
   } 
